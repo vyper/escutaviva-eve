@@ -1,11 +1,14 @@
 // eslint-disable-next-line node/no-extraneous-import
 import {Client} from 'whatsapp-web.js';
+import * as QRCode from 'qrcode';
 
 const client = new Client({});
 
 client.on('qr', qr => {
-  // Generate and scan this code with your phone
   console.log('QR RECEIVED', qr);
+  QRCode.toString(qr, {type: 'terminal'}, (_: Error, url: string) => {
+    console.log(url);
+  });
 });
 
 client.on('ready', () => {
