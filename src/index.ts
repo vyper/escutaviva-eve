@@ -1,18 +1,12 @@
-import * as fs from 'fs';
-import * as path from 'path';
 import * as http from 'http';
 
 // eslint-disable-next-line node/no-extraneous-import
 import {Client} from 'whatsapp-web.js';
 import * as QRCode from 'qrcode';
+import {Session} from './session';
 
-const SESSION_FILE_PATH = path.resolve(__dirname, 'session.json');
-let sessionCfg;
-if (fs.existsSync(SESSION_FILE_PATH)) {
-  sessionCfg = require(SESSION_FILE_PATH);
-}
 const client = new Client({
-  session: sessionCfg,
+  session: Session.getInstance().getConfiguration(),
 });
 
 client.on('qr', qr => {
@@ -25,12 +19,7 @@ client.on('qr', qr => {
 client.on('authenticated', session => {
   console.log('AUTHENTICATED', session);
 
-  sessionCfg = session;
-  fs.writeFile(SESSION_FILE_PATH, JSON.stringify(session), err => {
-    if (err) {
-      console.error(err);
-    }
-  });
+  Session.getInstance().persist(session);
 });
 
 client.on('ready', () => {
