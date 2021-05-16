@@ -1,5 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import * as http from 'http';
+
 // eslint-disable-next-line node/no-extraneous-import
 import {Client} from 'whatsapp-web.js';
 import * as QRCode from 'qrcode';
@@ -42,3 +44,16 @@ client.on('message', msg => {
 });
 
 client.initialize();
+
+console.log('defining listener...');
+const requestListener = (_: http.IncomingMessage, res: http.ServerResponse) => {
+  client.getState().then(state => {
+    res.writeHead(200);
+    res.end(state);
+  });
+};
+
+console.log('createServer...');
+const server = http.createServer(requestListener);
+console.log('running listener...');
+server.listen(3000);
